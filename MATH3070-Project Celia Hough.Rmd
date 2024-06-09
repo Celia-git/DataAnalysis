@@ -1,0 +1,56 @@
+---
+title: "MATH3070-Project"
+author: "Celia Hough"
+date: "2024-06-06"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+library(MASS)
+data("Cars93")
+attach(Cars93)
+```
+
+## Summary Stats
+
+```{r, echo=FALSE, warning-FALSE}
+x1 <- Horsepower
+
+n1 <- length(x1[!is.na(x1)])
+min1 <- round(min(x1, na.rm=T), 2)
+q1_1 <- round(quantile(x1, .25, na.rm=T), 2)
+med1 <- round(quantile(x1, .5, na.rm=T), 2)
+q1_3 <- round(quantile(x1, .75, na.rm=T), 2)
+max1 <- round(max(x1, na.rm=T), 2)
+xbar1 <- round(mean(x1, na.rm=T), 2)
+sd1 <- round(sd(x1, na.rm=T), 2)
+
+x2 <- Weight
+
+n2 <- length(x2[!is.na(x2)])
+min2 <- round(min(x2, na.rm=T), 2)
+q2_1 <- round(quantile(x2, .25, na.rm=T), 2)
+med2 <- round(quantile(x2, .5, na.rm=T), 2)
+q2_3 <- round(quantile(x2, .75, na.rm=T), 2)
+max2 <- round(max(x2, na.rm=T), 2)
+xbar2 <- round(mean(x2, na.rm=T), 2)
+sd2 <- round(sd(x2, na.rm=T), 2)
+
+X1 <- c("Location" = "Horsepower", "N"=n1, "Min"=min1, "Q1"=q1_1, "Med"=med1, "Q3"=q1_3, "Max"=max1, "Mean"=xbar1, "StdDev"=sd1)
+
+X2 <- c("Location" = "Acceleration", "N"=n2, "Min"=min2, "Q1"=q2_1, "Med"=med2, "Q3"=q2_3, "Max"=max2, "Mean"=xbar2, "StdDev"=sd2)
+
+table.stats <- rbind(X1, X2)
+table.stats <- data.frame(table.stats, row.names = NULL)
+colnames(table.stats) <- c("Location", "N", "Min", "Q1", "Med", "Q3", "Max", "Mean", "StdDev")
+
+library(knitr)
+kable(table.stats, caption = "Table 1. Summary Statistics", bookstabs=T)
+
+```
