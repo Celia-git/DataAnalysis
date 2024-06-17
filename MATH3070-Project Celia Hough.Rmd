@@ -3,8 +3,8 @@ title: "MATH3070-Project"
 author: "Celia Hough"
 date: "2024-06-06"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,12 +14,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, echo=FALSE, warning=FALSE}
 library(MASS)
 data("Cars93")
+data("Titanic")
 attach(Cars93)
 ```
 
-## Summary Stats
+## Part 1: Summary Statistics for Horsepower and Weight
+### Data for parts 1, 2, and 4 comes from the Cars93 Dataset within the package MASS
 
 ```{r, echo=FALSE, warning-FALSE}
+
 x1 <- Horsepower
 
 n1 <- length(x1[!is.na(x1)])
@@ -44,13 +47,78 @@ sd2 <- round(sd(x2, na.rm=T), 2)
 
 X1 <- c("Location" = "Horsepower", "N"=n1, "Min"=min1, "Q1"=q1_1, "Med"=med1, "Q3"=q1_3, "Max"=max1, "Mean"=xbar1, "StdDev"=sd1)
 
-X2 <- c("Location" = "Acceleration", "N"=n2, "Min"=min2, "Q1"=q2_1, "Med"=med2, "Q3"=q2_3, "Max"=max2, "Mean"=xbar2, "StdDev"=sd2)
+X2 <- c("Location" = "Weight", "N"=n2, "Min"=min2, "Q1"=q2_1, "Med"=med2, "Q3"=q2_3, "Max"=max2, "Mean"=xbar2, "StdDev"=sd2)
 
 table.stats <- rbind(X1, X2)
 table.stats <- data.frame(table.stats, row.names = NULL)
 colnames(table.stats) <- c("Location", "N", "Min", "Q1", "Med", "Q3", "Max", "Mean", "StdDev")
 
 library(knitr)
-kable(table.stats, caption = "Table 1. Summary Statistics", bookstabs=T)
+kable(table.stats, caption = "Figure 1. Summary Statistics. Sample size is 93 observations each variable.  The mean horsepower is about 144 and the mean weight is about 3073.", bookstabs=T)
 
 ```
+
+## Part 2: Histogram and Box plot for Horsepower and Weight
+
+```{r, echo=FALSE}
+
+old.par <- par(mfrow=c(2,2))
+hist(Horsepower, breaks=25, freq=F, xlab="Horsepower", main="", xlim=c(0,350))
+lines(density(Horsepower, na.rm=T), col="red")
+boxplot(Horsepower, horizontal=T, col="sienna", xlab="Horsepower", ylim=c(0, 350))
+
+hist(Weight, breaks=25, freq=F, xlab="Weight", main="", xlim=c(1500,4500))
+lines(density(Weight, na.rm=T), col="red")
+boxplot(Weight, horizontal=T, col="sienna", xlab="Weight", ylim=c(1500,4500))
+
+par(old.par)
+
+
+```
+
+Figure 2. Table of Histograms and Boxplots for Horsepower (row 1) and Weight (row 2).  Both are bimodal, and Horsepower is skewed right with outliers in the upper tail of the distribution while Weight is skewed left with no outliers.
+
+\newpage
+## Part 3: Mosaic plot and table of Survived and Sex.
+### Data for part 3 comes from the dataset Titanic in the package carData.  
+
+```{r, echo=FALSE}
+old.par <- par(mfrow=c(1,2))
+tbl <- xtabs(Freq~Survived + Sex, Titanic)
+addmargins(tbl)
+tbl2 <- mosaicplot(tbl, main="Titanic data")
+kable(tbl2, caption = "Figure 3. Mosaic and cross tabulations of Survived and Sex. The existance of whether a passenger survived is cross-classified with their sex.
+  Conditional Probability: The conditional probability that a female passenger surived the Titanic is 344:470 ~ .73. The conditional probability that a female passenger did not survive the Titanic is 126:470 ~ .27.  The relative risk of a female surviving the titanic vs perishing is (344/470)/(126/470) ~ 2.7. 
+    This indicates that a female passenger is about 2.7 times more likely to have survived the titanic than to have perished.
+  Odds: There are 344 survivors and 126 who perished that are female. Thus, the odds of having survived if you are a female is 344:126 ~ 2.7. If you are a male then the odds of being a survivor are 367:1731 ~ 0.2. The odds ratio of (344/126)/(367/1731) ~ 12.9.
+    Therefore, the odds of a female passenger becoming a survivor are about 12.9 times more likely than a male Titanic passenger becoming a survivor.")
+
+par(old.par)
+
+```
+
+\newpage
+## Part 4: Simple Linear Regression Analysis of Horsepower vs Weight
+```{r, echo=FALSE}
+attach(Cars93)
+y <- Horsepower
+x <- Weight
+
+m1 <- lm(y~x)
+
+old.par <- par(mfrow=c(2,2))
+plot(y~x, xlab="Weight", ylab="Horsepower")
+abline(m1, col="red")
+plot(m1$residuals~m1$fitted.values, xlab="Fitted Value", ylab="Residuals")
+abline(h=0, col="red")
+qqnorm(m1$residuals,main="")
+qqline(m1$residuals,col="red")
+hist(m1$residuals,breaks=15,freq=F, main="", ylim=c(0,.025))
+lines(density(m1$residuals), col="blue")
+curve(dnorm(x,0,sd(m1$residuals)), col="red", add=T)
+par(old.par)
+
+```
+Figure 4. Plot of Horsepower as a function of Weight. Linearity is plausible, as it appears that Horsepower increases linearly with Weight. Fitted values vs Residual plot likely indicates on-constant variance. It also appears that variation in Horsepower increases as Weight increases. The qq plot shows the residuals are mostly normally distributed with variance on the upper tail.The histogram comparison of the Normal model (red) and density overlay (blue) reflects this mostly normal distribution with a slight positive skew. The linear regression estimates are $\hat{\beta}_0$ = -57.738 and $\hat{\beta}_1$ = 0.0656. The mean Horsepower increases by .0656 per Weight. The correlation coefficient is 0.739 with an $R^2$ of 54.58%. About 55% of the variability in Horsepower can be explained by Weight. 
+
+
